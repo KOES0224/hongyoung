@@ -13,7 +13,7 @@
       <ul class="nav-links">
         <li><a href="machines.html">Mac & Machines</a></li>
         <li><a href="materials.html">Materials</a></li>
-        <li></li>
+        <li style="margin-left: 20px;"><a href="#" onclick="promptAdminLogin()" style="font-size:12px; color:var(--text-sc); opacity:0.6;">Staff Login</a></li>
       </ul>
     </div>
   </nav>
@@ -33,5 +33,34 @@
 
   <div class="bento-container" id="bento-grid"></div>
   <script src="js/app.js"></script>
+<script>
+    async function promptAdminLogin() {
+        if(localStorage.getItem("hy_token")) {
+            window.location.href = "admin.html";
+            return;
+        }
+        const pw = prompt("관리자(Staff) 비밀번호를 입력하세요:");
+        if(pw === "ghddud1") {
+            try {
+                const res = await fetch("http://localhost:3000/api/login", {
+                    method: "POST", headers:{"Content-Type":"application/json"},
+                    body: JSON.stringify({id:"hycatch", pw:"ghddud1"})
+                });
+                const data = await res.json();
+                if(data.success) {
+                    localStorage.setItem("hy_token", data.token);
+                    alert("로컬 파이썬 서버 연결 확인됨! 어드민 패널로 이동합니다.");
+                    window.location.href = "admin.html";
+                }
+            } catch(err) {
+                localStorage.setItem("hy_token", "static-auth");
+                alert("관리자 인증(인터넷 모드) 완료.");
+                window.location.href = "admin.html";
+            }
+        } else if(pw) {
+            alert("비밀번호가 틀렸습니다.");
+        }
+    }
+  </script>
 </body>
 </html>
