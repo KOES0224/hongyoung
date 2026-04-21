@@ -2,81 +2,111 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>통합 재고/관리 어드민</title>
+  <title>홍영컴퍼니 어드민 센터</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .admin-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:99999; display:flex; justify-content:center; align-items:center; }
     .login-box { background:var(--bg-secondary); padding:50px; border-radius:30px; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.1); width: 400px;}
-    .login-input { display:block; width:100%; padding:15px; margin-bottom:15px; border-radius:12px; border:1px solid var(--border); font-size:16px; background:var(--bg); color:var(--text); }
     .hidden { display: none !important; }
     .tab-bar { display:flex; gap:20px; margin-bottom:30px; border-bottom:1px solid var(--border); padding-bottom:15px; }
     .tab-btn { background:none; border:none; font-size:18px; color:var(--text-sc); cursor:pointer; padding-bottom:5px; transition:color 0.3s; }
     .tab-btn.active { color:var(--text); font-weight:600; border-bottom:2px solid var(--text); }
-    .form-group { margin-bottom:20px; }
-    .form-group label { display:block; margin-bottom:8px; font-size:14px; color:var(--text-sc); }
-    .form-control { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--text); font-family:inherit; }
     
     .status-bar { text-align:right; margin-top:-20px; margin-bottom:20px; font-size:14px; }
     .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:gray; margin-right:5px; }
     .dot.on { background:#34c759; }
     .dot.off { background:#ff3b30; }
+
+    /* Dashboard Styles */
+    .dashboard-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: var(--bg-secondary); padding: 30px; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .kpi-title { font-size: 14px; color: var(--text-sc); font-weight: 600; margin-bottom: 10px; }
+    .kpi-value { font-size: 36px; font-weight: 700; color: var(--text); }
+    .kpi-delta { font-size: 14px; font-weight: 600; margin-top: 10px; }
+    .kpi-delta.up { color: #34c759; }
+    .kpi-delta.down { color: #ff3b30; }
+
+    /* Detail Editor Styles */
+    .editor-row { background: var(--bg-secondary); margin-bottom: 20px; padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
+    .editor-header { font-size: 20px; font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; }
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .editor-col { display: flex; flex-direction: column; }
+    .editor-col label { font-size: 12px; color: var(--text-sc); margin-bottom: 5px; }
+    .editor-input, .editor-textarea { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;}
+    .editor-textarea { resize: vertical; min-height: 60px; }
   </style>
 </head>
 <body>
-  <div class="admin-overlay" id="login-overlay">
-      <div class="login-box">
-          <h2 style="font-size:24px; margin-bottom:30px; letter-spacing:-0.03em;">Hongyoung Admin</h2>
-          <input type="text" id="login-id" class="login-input" placeholder="Admin ID" />
-          <input type="password" id="login-pw" class="login-input" placeholder="Password" />
-          <button class="btn-primary" style="width:100%; font-size:16px; padding:15px;" onclick="doLogin()">로그인</button>
-      </div>
-  </div>
 
   <nav>
-    <div class="nav-container" style="max-width:1000px;">
-      <a href="index.html" class="logo">홍영컴퍼니 Admin</a>
+    <div class="nav-container" style="max-width:1200px;">
+      <a href="index.html" class="logo">홍영컴퍼니 어드민</a>
       <div>
-         <button class="btn-primary" onclick="deployToVercel()" id="deploy-btn" style="background:#bf4800; margin-right:10px;">🚀 실서버 배포 쏴주기(Vercel 연동)</button>
-         <button class="btn-primary" onclick="doLogout()" style="padding:6px 15px; font-size:12px;">로그아웃</button>
+         <button class="btn-primary" onclick="deployToVercel()" id="deploy-btn" style="background:#bf4800; margin-right:10px;">🚀 실서버(Vercel)로 재고 동기화</button>
       </div>
     </div>
   </nav>
 
-  <div class="container-admin hidden" id="admin-dashboard" style="max-width:1000px;">
-    <h1 style="font-size: 40px; margin-bottom:10px;">관리자 대시보드</h1>
-    <div class="status-bar"><span class="dot off" id="server-dot"></span> 파이썬 로컬 서버 상태: <span id="server-text">확인중...</span></div>
+  <div class="container-admin" id="admin-dashboard" style="max-width:1200px;">
+    <h1 style="font-size: 40px; margin-bottom:10px;">홍영컴퍼니 물류 대시보드</h1>
+    <div class="status-bar"><span class="dot off" id="server-dot"></span> 파이썬 로컬 서버 통신 상태: <span id="server-text">확인중...</span></div>
     
     <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('price-tab', this)">단가 및 수량 수정</button>
-        <button class="tab-btn" onclick="switchTab('stock-tab', this)">엑셀 업로드 자동 관리</button>
+        <button class="tab-btn active" onclick="switchTab('insights-tab', this)">📊 출고량 인사이트</button>
+        <button class="tab-btn" onclick="switchTab('edit-tab', this)">📝 전체 제품 데이터 상세 에디터</button>
+        <button class="tab-btn" onclick="switchTab('stock-tab', this)">📂 엑셀 재고 자동 연결</button>
     </div>
 
-    <!-- Tab 1: Price Edit -->
-    <div id="price-tab">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>분류</th>
-                    <th>기기명</th>
-                    <th>현재 단가</th>
-                    <th>현재 재고량</th>
-                    <th>저장</th>
-                </tr>
-            </thead>
-            <tbody id="admin-tbody"></tbody>
-        </table>
+    <!-- Tab 1: Insights Dashboard -->
+    <div id="insights-tab">
+      <div class="dashboard-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">금주 예상 누적 출고 (Mock)</div>
+          <div class="kpi-value">1,482 건</div>
+          <div class="kpi-delta up">▲ 12% vs 지난 주</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">목표 대비 월간 소모품 발주율</div>
+          <div class="kpi-value">84%</div>
+          <div class="kpi-delta up">▲ 3% vs 지난 달 초</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">긴급 입고 필요 기기</div>
+          <div class="kpi-value">3 기종</div>
+          <div class="kpi-delta down">▼ 자동랩핑기, 제함기 재고 부족</div>
+        </div>
+      </div>
+      
+      <div class="kpi-card" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 20px;">🔥 최근 30일 포장 기계 최고 판매 베스트셀러 (Mock)</h3>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; height: 150px; border-bottom: 1px solid var(--border); padding-bottom:10px; gap:20px;">
+           <div style="flex:1; background:var(--apple-blue); height: 90%; border-radius:8px 8px 0 0; position:relative;"><span style="position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); font-size:12px;">반자동 밴딩기</span></div>
+           <div style="flex:1; background:#34c759; height: 60%; border-radius:8px 8px 0 0; position:relative;"><span style="position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); font-size:12px;">자동 랩핑기</span></div>
+           <div style="flex:1; background:#af52de; height: 100%; border-radius:8px 8px 0 0; position:relative;"><span style="position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); font-size:12px;">포장용 테이프류</span></div>
+           <div style="flex:1; background:#ff9500; height: 30%; border-radius:8px 8px 0 0; position:relative;"><span style="position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); font-size:12px;">진공 포장기</span></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Tab 2: Stock Excel -->
+    <!-- Tab 2: Detail Editor -->
+    <div id="edit-tab" class="hidden">
+      <div style="margin-bottom:20px; font-size:14px; color:var(--text-sc);">현재 쇼핑몰에 등록된 모든 상품의 디테일을 현장에서 즉각 수정합니다.</div>
+      <div id="editor-list"></div>
+    </div>
+
+    <!-- Tab 3: Stock Excel -->
     <div id="stock-tab" class="hidden">
         <div style="background:var(--bg-secondary); padding:40px; border-radius:30px; margin-bottom:30px;">
-            <h3 style="font-size:20px; font-weight:600; margin-bottom:15px;">엑셀 자동화 적용 (매일 판매/입고분)</h3>
+            <h3 style="font-size:20px; font-weight:600; margin-bottom:15px;">엑셀 데이터베이스 연동 (출고/입고 일일 마감)</h3>
             <p style="font-size:14px; color:var(--text-sc); margin-bottom:20px;">
-              엑셀 양식은 가장 윗줄(A1~n1)에 제목이 있고, <br><b>A열: 제품ID / B열: 입고량 / C열: 판매량</b> 순으로 작성해주시면 됩니다. 
-              <br>(기존 시스템에 저장된 재고에 더하고 빼서 자동으로 갱신됩니다)
+              A열: <b>제품ID</b> / B열: <b>입고량</b> / C열: <b>판매량</b> 엑셀을 업로드하시면,<br>현재 사이트에 송출중인 재고 시스템 값에 실시간으로 가감산되어 갱신됩니다.
             </p>
             <input type="file" id="excel-file" accept=".xlsx" class="form-control" style="margin-bottom:20px; background:var(--bg);">
-            <button class="btn-primary" onclick="uploadExcel()" style="padding:10px 25px;" id="upload-btn">엑셀 데이터베이스 연동</button>
+            <button class="btn-primary" onclick="uploadExcel()" style="padding:10px 25px;" id="upload-btn">엑셀 적용 및 DB 연산</button>
             <div id="excel-log" style="margin-top:20px; font-family:monospace; font-size:13px; color:var(--apple-blue);"></div>
         </div>
     </div>
@@ -86,101 +116,105 @@
     let token = localStorage.getItem("hy_token");
     let baseApi = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "" : "http://localhost:3000";
 
+    // Block non logged in 
+    if(!token || token !== "static-auth") {
+        alert("비정상적인 접근입니다."); window.location.href = "index.html";
+    }
+
     async function checkServer() {
         try {
             const res = await fetch(baseApi + "/api/check-local");
             if(res.ok) {
                 document.getElementById('server-dot').className = 'dot on';
-                document.getElementById('server-text').innerText = '가동 중 (모든 편집/저장/엑셀 가능)';
+                document.getElementById('server-text').innerText = '보안 채널 가동 중 (전권 획득)';
             }
         } catch(err) {
             document.getElementById('server-dot').className = 'dot off';
-            document.getElementById('server-text').innerText = '서버 꺼짐 상태 (현황 조회만 가능)';
+            document.getElementById('server-text').innerText = '외부 서버 환경 (저장 시도 시 Vercel 블락됨)';
             document.getElementById('deploy-btn').style.display = 'none';
-            document.getElementById('upload-btn').style.display = 'none';
         }
     }
-
-    function checkAuth() {
-        if(token) {
-            document.getElementById("login-overlay").classList.add("hidden");
-            document.getElementById("admin-dashboard").classList.remove("hidden");
-            checkServer();
-            loadAdmin();
-        } else {
-            document.getElementById("login-overlay").classList.remove("hidden");
-            document.getElementById("admin-dashboard").classList.add("hidden");
-        }
-    }
-
-    async function doLogin() {
-        const id = document.getElementById("login-id").value;
-        const pw = document.getElementById("login-pw").value;
-        if(pw === "ghddud1") {
-            try { 
-                const res = await fetch(baseApi+"/api/login", {
-                    method: "POST", headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({id, pw})
-                });
-                const d = await res.json();
-                if(d.success) { token = d.token; localStorage.setItem("hy_token", token); checkAuth(); }
-            } catch(e) {
-                token = "static-auth"; localStorage.setItem("hy_token", token); checkAuth();
-            }
-        } else { alert("비밀번호가 다릅니다."); }
-    }
-
-    function doLogout() { localStorage.removeItem("hy_token"); token = null; checkAuth(); }
 
     function switchTab(tabId, btn) {
         document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        document.getElementById("price-tab").classList.add("hidden");
+        document.getElementById("insights-tab").classList.add("hidden");
+        document.getElementById("edit-tab").classList.add("hidden");
         document.getElementById("stock-tab").classList.add("hidden");
         document.getElementById(tabId).classList.remove("hidden");
     }
 
     async function loadAdmin() {
         try {
-            // First try API if local, else use static json
             let url = baseApi !== "" ? baseApi+"/api/products" : "/data/products.json";
             let res;
             try { res = await fetch(url); } catch(e) { res = await fetch("/data/products.json"); }
             
             const products = await res.json();
-            const tbody = document.getElementById("admin-tbody");
-            tbody.innerHTML = "";
+            const list = document.getElementById("editor-list");
+            list.innerHTML = "";
             Object.keys(products).forEach(key => {
                 const p = products[key];
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${p.category}</td>
-                    <td style="font-weight:600;">${p.title} <br><span style="font-size:11px;color:gray;font-weight:400;">(${key})</span></td>
-                    <td><input type="text" id="price-${key}" value="${p.price}" class="admin-input"></td>
-                    <td><input type="number" id="stock-${key}" value="${p.stock || 0}" class="admin-input" style="width:80px;"></td>
-                    <td>
-                        <button class="btn-primary" onclick="updatePrice('${key}')">저장</button>
-                        <span id="msg-${key}" style="font-size:12px; color:var(--apple-blue); margin-left:10px; opacity:0; transition: opacity 0.3s;">OK!</span>
-                    </td>
+                
+                const box = document.createElement("div");
+                box.className = "editor-row";
+                box.innerHTML = `
+                    <div class="editor-header">
+                       <div>${p.title} <span style="font-size:12px;color:gray;">(${key})</span></div>
+                       <div>
+                         <span id="msg-${key}" style="font-size:12px; color:var(--apple-blue); margin-right:10px; opacity:0; transition: opacity 0.3s;">저장 완료!</span>
+                         <button class="btn-primary" style="padding:6px 12px; font-size:12px;" onclick="updateDetail('${key}')">덮어쓰기 완료</button>
+                       </div>
+                    </div>
+                    
+                    <div class="editor-grid">
+                        <div class="editor-col">
+                            <label>카테고리 표시</label>
+                            <input type="text" id="cat-${key}" class="editor-input" value="${p.category || ''}">
+                        </div>
+                        <div class="editor-col">
+                            <label>제품명 (Title)</label>
+                            <input type="text" id="title-${key}" class="editor-input" value="${p.title || ''}">
+                        </div>
+                    </div>
+                    
+                    <div class="editor-col" style="margin-bottom:15px;">
+                        <label>제품 상세 설명 (Description)</label>
+                        <textarea id="desc-${key}" class="editor-textarea">${p.desc || ''}</textarea>
+                    </div>
+
+                    <div class="editor-grid">
+                        <div class="editor-col">
+                            <label>판매 단가 (원)</label>
+                            <input type="text" id="price-${key}" class="editor-input" value="${p.price || ''}">
+                        </div>
+                        <div class="editor-col">
+                            <label>현재 재고량 (개)</label>
+                            <input type="number" id="stock-${key}" class="editor-input" value="${p.stock || 0}">
+                        </div>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                list.appendChild(box);
             });
         } catch(e) { console.error(e); }
     }
     
-    window.updatePrice = async (id) => {
+    window.updateDetail = async (id) => {
+        const newCategory = document.getElementById(`cat-${id}`).value;
+        const newTitle = document.getElementById(`title-${id}`).value;
+        const newDesc = document.getElementById(`desc-${id}`).value;
         const newPrice = document.getElementById(`price-${id}`).value;
         const newStock = document.getElementById(`stock-${id}`).value;
         try {
-            const res = await fetch(baseApi + "/api/update-price", {
+            const res = await fetch(baseApi + "/api/update-detail", {
                 method: "POST", headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`},
-                body: JSON.stringify({id, newPrice, newStock})
+                body: JSON.stringify({id, newCategory, newTitle, newDesc, newPrice, newStock})
             });
             if(res.ok) {
                 const msg = document.getElementById(`msg-${id}`);
                 msg.style.opacity = "1"; setTimeout(() => { msg.style.opacity = "0"; }, 2000);
             } else throw new Error();
-        } catch(e) { alert("파이썬 로컬 서버 통신 실패.\n(Vercel 라이브 사이트에서는 수정이 불가능합니다.)"); }
+        } catch(e) { alert("저장 실패. 로컬 컴퓨터의 파이썬 서버가 통신 불능입니다."); }
     };
 
     async function uploadExcel() {
@@ -194,28 +228,31 @@
             });
             const data = await res.json();
             if(res.ok && data.success) {
-                document.getElementById("excel-log").innerHTML = "<b>[엑셀 연동 성공!]</b><br>" + data.logs.join("<br>");
+                document.getElementById("excel-log").innerHTML = "<b>[재고 동기화 완료!]</b><br>" + data.logs.join("<br>");
                 loadAdmin();
-            } else { alert("엑셀 파싱 에러: " + data.error); }
+            } else { alert("파싱 에러: " + data.error); }
         } catch(e) { alert("서버 연동 실패. 로컬 서버 상태를 확인하세요."); }
     }
 
     async function deployToVercel() {
-        if(!confirm("현재 저장된 재고와 가격을 Vercel(라이브 사이트)에 전송하시겠습니까?\n(자동 PUSH. 10초 후 인터넷 사이트가 업데이트됩니다!)")) return;
+        if(!confirm("이곳에서 작업하신 내용을 인터넷 라이브 사이트(Vercel)로 덮어씌웁니다.\n계속하시겠습니까? (자동 Push 진행)")) return;
         try {
             document.getElementById('deploy-btn').innerText = "배포 명령 전송 중...";
             const res = await fetch(baseApi + "/api/deploy", {
                 method: "POST", headers: {"Authorization": `Bearer ${token}`}
             });
             if(res.ok) {
-                alert("Vercel 배포 시그널(GitHub Push) 발송 완료! 10초 뒤 반영됩니다.");
-                document.getElementById('deploy-btn').innerText = "🚀 실서버 배포 쏴주기(Vercel 연동)";
+                alert("Vercel 자동 배포가 시작되었습니다! 약 10초 뒤 손님 화면이 새로고침됩니다.");
+                document.getElementById('deploy-btn').innerText = "🚀 실서버(Vercel)로 재고 동기화";
             }
             else {
                 alert("서버 오류입니다.");
             }
-        } catch(e) { alert("전송 실패. 서버 연결 문제."); }
+        } catch(e) { alert("통신 실패."); }
     }
+
+    checkServer();
+    loadAdmin();
 </script>
 </body>
 </html>
