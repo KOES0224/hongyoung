@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>기계 | 홍영컴퍼니</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">Hongyoung</a>
+      <ul class="nav-links">
+        <li><a href="machines.html">Mac & Machines</a></li>
+        <li><a href="materials.html">Materials</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="hero-section">
+    <h1 class="hero-title">Machines.</h1>
+    <h2 class="hero-subtitle">가장 진보된 공장을 위하여.</h2>
+  </div>
+  
+  <div class="filter-nav">
+      <button class="filter-btn active" data-filter="all">모든 모델</button>
+      <button class="filter-btn" data-filter="bander">밴딩 머신</button>
+      <button class="filter-btn" data-filter="wrapper">랩핑 시스템</button>
+      <button class="filter-btn" data-filter="sealer">실링 센터</button>
+      <button class="filter-btn" data-filter="carton">테이핑 장비</button>
+      <button class="filter-btn" data-filter="vacuum">진공 컨트롤</button>
+  </div>
+
+  <div class="bento-container" id="bento-grid"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>

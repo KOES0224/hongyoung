@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>자재 | 홍영컴퍼니</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">Hongyoung</a>
+      <ul class="nav-links">
+        <li><a href="machines.html">Mac & Machines</a></li>
+        <li><a href="materials.html">Materials</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="hero-section">
+    <h1 class="hero-title">Materials.</h1>
+    <h2 class="hero-subtitle">완벽한 매듭, 흔들림 없는 결속.</h2>
+  </div>
+
+  <div class="filter-nav">
+      <button class="filter-btn active" data-filter="all">모든 소재</button>
+      <button class="filter-btn" data-filter="mat_tape">테이프류</button>
+      <button class="filter-btn" data-filter="mat_film">고강도 필름</button>
+      <button class="filter-btn" data-filter="mat_band">결속 밴드</button>
+      <button class="filter-btn" data-filter="mat_glove">산업 안전</button>
+  </div>
+
+  <div class="bento-container" id="bento-grid"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>

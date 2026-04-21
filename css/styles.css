@@ -1,0 +1,181 @@
+
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --text: #1d1d1f;
+  --text-sc: #86868b;
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --border: #e8e8ed;
+  --apple-blue: #0066cc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --bg-secondary: #1c1c1e;
+    --text: #f5f5f7;
+    --text-sc: #86868b;
+    --nav-bg: rgba(0, 0, 0, 0.8);
+    --border: #333336;
+    --apple-blue: #2997ff;
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Inter", "Noto Sans KR", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.47059;
+  font-weight: 400;
+  letter-spacing: -0.022em;
+  -webkit-font-smoothing: antialiased;
+}
+
+nav {
+  position: fixed; top: 0; width: 100%; height: 44px;
+  background: var(--nav-bg); backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  z-index: 9999; display: flex; justify-content: center; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.nav-container {
+  width: 100%; max-width: 980px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px;
+}
+.logo { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); text-decoration: none; }
+.nav-links { display: flex; gap: 30px; list-style: none; }
+.nav-links a { color: var(--text-sc); font-size: 12px; font-weight: 400; text-decoration: none; transition: color 0.3s; }
+.nav-links a:hover { color: var(--text); }
+
+/* Bento Hero */
+.hero-section {
+  padding-top: 120px;
+  text-align: center;
+  margin-bottom: 80px;
+}
+.hero-title {
+  font-size: 80px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 15px;
+}
+.hero-subtitle {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text-sc);
+  letter-spacing: -0.01em;
+}
+
+/* Bento Grid */
+.bento-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 100px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+.bento-card {
+  background: var(--bg-secondary);
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.bento-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.card-half { grid-column: span 6; height: 500px; }
+.card-third { grid-column: span 4; height: 460px; }
+
+@media (max-width: 800px) {
+  .card-half, .card-third { grid-column: span 12; height: auto; min-height: 400px; }
+  .bento-container { grid-template-columns: 1fr; }
+  .hero-title { font-size: 50px; }
+}
+
+.bento-info {
+  padding: 35px 35px 0 35px;
+  z-index: 10;
+}
+.bento-eyebrow {
+  font-size: 14px;
+  font-weight: 600;
+  color: #bf4800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.bento-title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+.bento-desc {
+  font-size: 17px;
+  color: var(--text-sc);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+.bento-price {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bento-img {
+  flex-grow: 1;
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  margin-top: 20px;
+  background-color: var(--bg-secondary);
+}
+
+/* Tabs */
+.filter-nav {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  background: var(--bg-secondary);
+  border: none;
+  font-size: 15px;
+  padding: 8px 24px;
+  border-radius: 20px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+.filter-btn:hover { background: #e5e5e5; color: #000; }
+.filter-btn.active { background: var(--text); color: var(--bg); }
+
+.btn-primary {
+  background: var(--apple-blue);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.container-admin { max-width: 900px; margin: 100px auto; padding: 20px; }
+.admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.admin-table th, .admin-table td { padding: 15px; border-bottom: 1px solid var(--border); text-align: left; }
+.admin-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; width: 150px; background: var(--bg); color: var(--text); }

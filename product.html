@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>제품 상세 | 홍영컴퍼니</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">Hongyoung</a>
+      <ul class="nav-links">
+        <li><a href="machines.html">Mac & Machines</a></li>
+        <li><a href="materials.html">Materials</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div style="max-width: 1000px; margin: 80px auto; padding: 40px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
+      <div id="pd-image" style="width:100%; height: 500px; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:var(--bg-secondary); border-radius:30px;"></div>
+      <div style="padding-top:40px;">
+          <div id="pd-label" style="color:#bf4800; font-weight:600; font-size:14px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;"></div>
+          <h1 id="pd-title" style="font-size:48px; font-weight:700; letter-spacing:-0.04em; margin-bottom:20px; line-height:1.1;"></h1>
+          <p id="pd-desc" style="font-size:19px; color:var(--text-sc); line-height:1.5; margin-bottom:30px;"></p>
+          <div id="pd-price" style="font-size:24px; font-weight:600; margin-bottom:40px;"></div>
+          <button class="btn-primary" style="padding:14px 28px; font-size:16px;">구매 문의하기</button>
+      </div>
+  </div>
+  
+  <div style="max-width: 1000px; margin: 0 auto 100px; padding: 0 20px;">
+    <h2 style="font-size:28px; font-weight:600; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px;">세부 사양</h2>
+    <div id="pd-specs"></div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pid = urlParams.get("id");
+    
+    try {
+        const res = await fetch("/data/products.json");
+        const products = await res.json();
+        const p = products[pid];
+        
+        if(p) {
+            document.title = p.title + " | Hongyoung";
+            document.getElementById("pd-image").style.backgroundImage = `url(${p.image})`;
+            document.getElementById("pd-label").innerText = p.category;
+            document.getElementById("pd-title").innerText = p.title;
+            document.getElementById("pd-desc").innerText = p.desc;
+            document.getElementById("pd-price").innerText = p.price;
+            
+            let html = "<table style=\"width:100%; border-collapse:collapse;\">";
+            p.specs.forEach(s => {
+                html += `<tr><th style="text-align:left; padding:15px 0; color:var(--text-sc); font-weight:400; width:30%; border-bottom:1px solid var(--border);">${s.k}</th><td style="padding:15px 0; font-weight:500; border-bottom:1px solid var(--border);">${s.v}</td></tr>`;
+            });
+            html += "</table>";
+            document.getElementById("pd-specs").innerHTML = html;
+        } else {
+            document.getElementById("pd-title").innerText = "상품 정보를 찾을 수 없습니다.";
+        }
+    } catch(err) { console.error(err); }
+});
+</script>
+</body>
+</html>
